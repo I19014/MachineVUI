@@ -2,10 +2,10 @@ import sounddevice as sd
 from scipy.io.wavfile import write
 import wavio as wv
 
-fre = 44400
+fs = 44400
 duration = 3.5
 
-recording = sd.rec(int(duration*fre),samplerate = freq, channels = 2)
+recording = sd.rec(int(duration*fs),samplerate = fs, channels = 2)
 sd.wait()
-write("recording.wav",freq,recording)
-wv.write("recording1.wav", recording, freq, sampwidth=2)
+write("TestSounds/recording.wav",fs,recording)
+wv.write("TestSounds/recording1.wav", recording, fs, sampwidth=2)
