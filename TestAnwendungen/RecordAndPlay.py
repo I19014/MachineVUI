@@ -12,12 +12,10 @@ filename = 'TestSounds/Ok.wav'
 recording = sd.rec(int(duration*fs),samplerate = fs, channels = 2)
 print('Start Recording')
 sd.wait()
-#write(filename,fs,recording.astype(np.int16))
 print('Finished Recording')
 wv.write(filename, recording, fs, sampwidth=2)
 
 #play recorded File
-#sd.play(filename)
 wave_object = sa.WaveObject.from_wave_file(filename)
 play_obj = wave_object.play()
 print('Play')
