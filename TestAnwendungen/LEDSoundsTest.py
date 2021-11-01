@@ -2,7 +2,7 @@ import simpleaudio as sa
 import RPi.GPIO as io
 import time
 
-filename = '/home/pi/Projects/HelloWorldProject/TestAnwendungen/TestSounds/test.wav'
+filename = 'TestSounds/test.wav'
 led1 = 22
 
 io.setmode(io.BCM)
