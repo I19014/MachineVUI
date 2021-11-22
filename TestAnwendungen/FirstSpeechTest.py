@@ -14,6 +14,7 @@ io.setmode(io.BCM)
 io.setup(led1, io.OUT)
 
 print("Reden!")
+
 recording = sd.rec(int(duration*fs),samplerate = fs, channels = 2)
 sd.wait()
 wv.write(filename, recording, fs, sampwidth=2)
