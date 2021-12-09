@@ -33,11 +33,6 @@ class Activities:
         # zur Demonstrationszwecken wird hier nun eine Ausgabe definiert. 
         print(f" Schalte das Tor an mit {GPIO}")
 
-    
-
-
-
-
 
 class speech: 
     
@@ -153,6 +148,7 @@ if __name__ == '__main__':
             if rec.AcceptWaveform(data):
                 # erhalte das erkannte gesprochene als String zurück
                 x = rec.Result()
+                print("accepted")
                 print(x)
                 print(rec.Result())
                 # wandelt den String in Json um
@@ -162,4 +158,5 @@ if __name__ == '__main__':
                 if speech.STARTCODE == res['text']:
                     speech.active(rec)
             else:
+                print("WTF")
                 pass
