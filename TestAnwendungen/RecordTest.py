@@ -7,5 +7,5 @@ duration = 3.5
 
 recording = sd.rec(int(duration*fs),samplerate = fs, channels = 2)
 sd.wait()
-write("TestSounds/recording.wav",fs,recording)
-wv.write("TestSounds/recording1.wav", recording, fs, sampwidth=2)
+#write("TestSounds/recording.wav",fs,recording)
+wv.write("TestAnwendungen/TestSounds/recording1.wav", recording, fs, sampwidth=2)
