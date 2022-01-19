@@ -4,9 +4,9 @@ import wavio as wv
 import simpleaudio as sa
 import numpy as np
 
-fs = 44100
+fs = 48000
 duration = 3.5
-filename = 'TestSounds/Ok.wav'
+filename = 'TestAnwendungen/TestSounds/Ok.wav'
 
 #Record Voice
 recording = sd.rec(int(duration*fs),samplerate = fs, channels = 2)
