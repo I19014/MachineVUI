@@ -115,7 +115,7 @@ def callback(indata, frames, time, status):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(add_help=True)
     parser.add_argument(
-        '-m','--model', type=str, nargs='?',default='/home/pi/Sprachggesteuerte-Maschinenschnittstelle/TestAnwendungen/vosk-api/python/example/model', help='Pfad zum Model'
+        '-m','--model', type=str, nargs='?',default='/home/pi/Sprachggesteuerte-Maschinenschnittstelle/TestAnwendungen/OfflineSpeechassistent/model', help='Pfad zum Model'
         #'-m','--model', type=str, nargs='?',default='../vosk-api/python/BigModel/model', help='Pfad zum größeren Model'
         #'-m','--model', type=str, nargs='?',default='model', help='Pfad zum größeren Model'
     )
