@@ -10,10 +10,10 @@ import time
 import gpiozero
 import RPi.GPIO as GPIO
 import simpleaudio as sa
-from Speech import Speech
 from Activities import Activities
 
 q = queue.Queue()
+act = Activities()
 
 class Speech: 
     
@@ -22,7 +22,7 @@ class Speech:
         self.STARTCODE = startcode
     # Unsere Thread Funktion
     def thread_timer(self):
-        Activities.speakSignal(17,10)
+        Activities.speakSignal(act,17,10)
         
     # Definieren der Aktivierungsphase. Solange der thread gestartet ist, können Kommandos zum triggern der Methoden aus der Activities Klasse gesagt werden.
     # 
@@ -40,17 +40,12 @@ class Speech:
             data = q.get()
             if rec.AcceptWaveform(data):
                 print("second record")
-                # 
                 res = json.loads(rec.Result())
                 if 'Weiter'.upper() in res['text'].upper():
-                    Activities.success_Sound()
-                    Activities.impuls(18)
-                    #t.Join()
+                    Activities.weiter(act)
                     break
                 elif 'Start'.upper() in res['text'].upper():
-                    Activities.success_Sound()
-                    Activities.impuls(23)
-                    #t.Join()
+                    Activities.start(act)
                     break
                 print(res['text'])
 
