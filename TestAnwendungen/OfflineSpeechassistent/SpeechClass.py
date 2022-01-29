@@ -53,7 +53,7 @@ class speech:
         #Statusausgabe bei Eingangssignal
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(19, GPIO.IN)
-        filename = 'TestSounds/Ok.wav'
+        filename = 'TestAnwendungen/TestSounds/Ok.wav'
         wave_object = sa.WaveObject.from_wave_file(filename)
         while True:
             if GPIO.input(19) == 0:
@@ -131,7 +131,7 @@ if __name__ == '__main__':
         #exit(1)
     model = vosk.Model(args.model)
     # Speech Objekt erstellen und Übergabe des Aktivierungsworts
-    speech = speech('computer')
+    speech = speech('hallo computer')
     # 
     with sd.RawInputStream(samplerate=args.samplerate, blocksize=8000, device=None,dtype='int16',
                             channels=1, callback=callback):
@@ -157,6 +157,5 @@ if __name__ == '__main__':
                 # wenn der Aktivierungscode herausgehört wurde, wird die active Methode von Speech gestartet
                 if speech.STARTCODE == res['text']:
                     speech.active(rec)
-            else:
-                print("WTF")
+            else:                
                 pass
