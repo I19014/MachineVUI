@@ -2,6 +2,19 @@ import gpiozero
 from RaspiAPI import RaspiAPI
 import threading
 
+#Audio Files
+Success_Audio = 'audio/Success.wav'
+Fail_Audio = 'audio/Fail.wav'
+Start_Audio = 'audio/SystemStart.wav'
+
+# Output Pins
+Listen_Command_Pin = 25
+Weiter_Pin = 18
+Start_Pin = 23
+
+#Input Pins
+Command_finished_Pin = 17
+
 class Activities:
 # Definiere die Aktivitäten, die mit deiner Sprache gesteuert werden können.
     LICHT_LED = LED_TOR = None
@@ -9,7 +22,6 @@ class Activities:
     
     def __init__(self):
         self.init_Command_End_Signal()
-        print("init Activities")
 
     # Console Output
     def pin_Info(self,text,GPIO):
@@ -18,22 +30,19 @@ class Activities:
 
     # Voice Commands
 
-    def speakSignal(self, time):
-        GPIO = 25
-        RaspiAPI.power_gpio_time(RaspiAPI,GPIO,time)
-        self.pin_Info("Open for Commands; Open Pin for 10 sec", GPIO)
+    def Listen_Command(self, time):
+        RaspiAPI.power_gpio_time(RaspiAPI,Listen_Command_Pin,time)
+        self.pin_Info("Open for Commands; Open Pin for 10 sec", Listen_Command_Pin)
 
     def start(self):
-        pin = 18
         Activities.success_Sound()
-        Activities.impuls(pin)
-        self.pin_Info("Run Command 'Start'; Impulse Pin", pin)
+        Activities.impuls(Start_Pin)
+        self.pin_Info("Run Command 'Start'; Impulse Pin", Start_Pin)
     
     def weiter(self):
-        pin = 23
         Activities.success_Sound()
-        Activities.impuls(pin)
-        self.pin_Info("Run Command 'Weiter'; Impulse Pin", pin)
+        Activities.impuls(Weiter_Pin)
+        self.pin_Info("Run Command 'Weiter'; Impulse Pin", Weiter_Pin)
     
     # print Pins
 
@@ -55,27 +64,21 @@ class Activities:
     # print Audio
 
     def audio_Start():
-        filename = 'audio/SystemStart.wav'
-        RaspiAPI.play_Audio(filename)
+        RaspiAPI.play_Audio(Start_Audio)
         print("Play start audio")
 
     def success_Sound():
-        filename = 'audio/Success.wav'
-        RaspiAPI.play_Audio(filename)
+        RaspiAPI.play_Audio(Success_Audio)
         print("Play success audio")
 
     def fail_Sound():
-        filename = 'audio/Fail.wav'
-        RaspiAPI.play_Audio(filename)
+        RaspiAPI.play_Audio(Fail_Audio)
         print("Play fail audio")
 
     #Machine Signals
     def init_Command_End_Signal(self):
-        t = threading.Thread(target=self.Command_End_Signal)
+        t = threading.Thread(target=self.Command_Finished_Signal)
         t.start()
-        print("Start Thread")
 
-    def Command_End_Signal(self):
-         filename = 'audio/Success.wav'
-         pin = 17
-         RaspiAPI.gpio_Input(RaspiAPI,pin, filename)
+    def Command_Finished_Signal(self):
+         RaspiAPI.gpio_Input(RaspiAPI,Command_finished_Pin, Success_Audio)

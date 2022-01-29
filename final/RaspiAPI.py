@@ -10,10 +10,10 @@ class RaspiAPI:
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(pin, GPIO.IN)
         while True:
-            print(f"Pin: {pin} Input: {GPIO.input(pin)}")
+            #print(f"Pin: {pin} Input: {GPIO.input(pin)}")
             if GPIO.input(pin) == 1:
                 self.play_Audio(filename)
-            time.sleep(1)
+            time.sleep(0.5)
     
 
     def play_Audio(audio):

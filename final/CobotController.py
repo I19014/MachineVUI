@@ -7,14 +7,18 @@ import sounddevice as sd
 import vosk
 import threading
 import time
-import gpiozero
-import RPi.GPIO as GPIO
-import simpleaudio as sa
 from Activities import Activities
+
+#Commands
+STARTWORD = 'hallo computer'
+Weiter_Command_Word = 'Weiter'
+Start_Command_Word = 'Start'
+
+#Paths
+Model_Path = '/home/pi/Sprachggesteuerte-Maschinenschnittstelle/TestAnwendungen/OfflineSpeechassistent/model'
 
 q = queue.Queue()
 act =  Activities()
-STARTWORD = 'Hallo Computer'
 
 class Speech: 
     
@@ -23,7 +27,7 @@ class Speech:
         self.STARTCODE = startcode
     # Unsere Thread Funktion
     def thread_timer(self):
-        Activities.speakSignal(act,10)
+        Activities.Listen_Command(act,10)
         
     # Definieren der Aktivierungsphase. Solange der thread gestartet ist, können Kommandos zum triggern der Methoden aus der Activities Klasse gesagt werden.
     # 
@@ -42,10 +46,10 @@ class Speech:
             if rec.AcceptWaveform(data):
                 print("second record")
                 res = json.loads(rec.Result())
-                if 'Weiter'.upper() in res['text'].upper():
+                if Weiter_Command_Word.upper() in res['text'].upper():
                     Activities.weiter(act)
                     break
-                elif 'Start'.upper() in res['text'].upper():
+                elif Start_Command_Word.upper() in res['text'].upper():
                     Activities.start(act)
                     break
                 print(res['text'])
@@ -60,7 +64,7 @@ def callback(indata, frames, time, status):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(add_help=True)
     parser.add_argument(
-        '-m','--model', type=str, nargs='?',default='/home/pi/Sprachggesteuerte-Maschinenschnittstelle/TestAnwendungen/OfflineSpeechassistent/model', help='Pfad zum Model'
+        '-m','--model', type=str, nargs='?',default=Model_Path, help='Pfad zum Model'
         #'-m','--model', type=str, nargs='?',default='../vosk-api/python/BigModel/model', help='Pfad zum größeren Model'
         #'-m','--model', type=str, nargs='?',default='model', help='Pfad zum größeren Model'
     )
@@ -73,19 +77,15 @@ if __name__ == '__main__':
     args = parser.parse_args('')
     if not os.path.exists(args.model):
         print("Please download a model from https://alphacephei.com/vosk/models and unpack to 'model'")
-        #exit(1)
+        exit(1)
     model = vosk.Model(args.model)
     # Speech Objekt erstellen und Übergabe des Aktivierungsworts
     Speech = Speech(STARTWORD)    
-    # 
     with sd.RawInputStream(samplerate=args.samplerate, blocksize=8000, device=None,dtype='int16',
                             channels=1, callback=callback):
         print('*' * 80)
         # Aktivierung der vosk Spracherkennung mit Übergabe des geladenen Models. Übersetze das Gesprochene in Text.
         rec = vosk.KaldiRecognizer(model, args.samplerate)
-        #t = threading.Thread(target=Speech.gpio_Input)
-        # Thread starten
-        #t.start()
         act = Activities()
         Activities.audio_Start()
         while True:
