@@ -13,7 +13,8 @@ import simpleaudio as sa
 from Activities import Activities
 
 q = queue.Queue()
-act = Activities()
+act =  Activities()
+STARTWORD = 'Hallo Computer'
 
 class Speech: 
     
@@ -22,7 +23,7 @@ class Speech:
         self.STARTCODE = startcode
     # Unsere Thread Funktion
     def thread_timer(self):
-        Activities.speakSignal(act,17,10)
+        Activities.speakSignal(act,10)
         
     # Definieren der Aktivierungsphase. Solange der thread gestartet ist, können Kommandos zum triggern der Methoden aus der Activities Klasse gesagt werden.
     # 
@@ -75,7 +76,7 @@ if __name__ == '__main__':
         #exit(1)
     model = vosk.Model(args.model)
     # Speech Objekt erstellen und Übergabe des Aktivierungsworts
-    Speech = Speech('hallo computer')    
+    Speech = Speech(STARTWORD)    
     # 
     with sd.RawInputStream(samplerate=args.samplerate, blocksize=8000, device=None,dtype='int16',
                             channels=1, callback=callback):
@@ -85,6 +86,7 @@ if __name__ == '__main__':
         #t = threading.Thread(target=Speech.gpio_Input)
         # Thread starten
         #t.start()
+        act = Activities()
         Activities.audio_Start()
         while True:
             # Daten aus der Queue ziehen

@@ -1,21 +1,19 @@
 import gpiozero
+import RPi.GPIO as GPIO
 import simpleaudio as sa
 import time
 
 
 class RaspiAPI:
-    def gpio_Input():
+    def gpio_Input(self, pin, filename):
         #Statusausgabe bei Eingangssignal
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(19, GPIO.IN)
-        filename = 'audio/SystemStart.wav'
-        wave_object = sa.WaveObject.from_wave_file(filename)
+        GPIO.setup(pin, GPIO.IN)
         while True:
-            if GPIO.input(19) == 0:
-                pass
-            else:
-                play_obj = wave_object.play()
-                play_obj.wait_done() 
+            print(f"Pin: {pin} Input: {GPIO.input(pin)}")
+            if GPIO.input(pin) == 1:
+                self.play_Audio(filename)
+            time.sleep(1)
     
 
     def play_Audio(audio):

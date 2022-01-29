@@ -1,11 +1,16 @@
 import gpiozero
 from RaspiAPI import RaspiAPI
+import threading
 
 class Activities:
 # Definiere die Aktivitäten, die mit deiner Sprache gesteuert werden können.
     LICHT_LED = LED_TOR = None
     RaspiAPI = RaspiAPI()      
     
+    def __init__(self):
+        self.init_Command_End_Signal()
+        print("init Activities")
+
     # Console Output
     def pin_Info(self,text,GPIO):
         # zur Demonstrationszwecken wird hier nun eine Ausgabe definiert. 
@@ -13,7 +18,8 @@ class Activities:
 
     # Voice Commands
 
-    def speakSignal(self,GPIO, time):
+    def speakSignal(self, time):
+        GPIO = 25
         RaspiAPI.power_gpio_time(RaspiAPI,GPIO,time)
         self.pin_Info("Open for Commands; Open Pin for 10 sec", GPIO)
 
@@ -62,3 +68,14 @@ class Activities:
         filename = 'audio/Fail.wav'
         RaspiAPI.play_Audio(filename)
         print("Play fail audio")
+
+    #Machine Signals
+    def init_Command_End_Signal(self):
+        t = threading.Thread(target=self.Command_End_Signal)
+        t.start()
+        print("Start Thread")
+
+    def Command_End_Signal(self):
+         filename = 'audio/Success.wav'
+         pin = 17
+         RaspiAPI.gpio_Input(RaspiAPI,pin, filename)
