@@ -11,13 +11,51 @@ import gpiozero
 import RPi.GPIO as GPIO
 import simpleaudio as sa
 from Speech import Speech
+from Activities import Activities
 
 q = queue.Queue()
 
+class Speech: 
+    
+    STARTCODE = 'computer'
+    def __init__(self,startcode):
+        self.STARTCODE = startcode
+    # Unsere Thread Funktion
+    def thread_timer(self):
+        Activities.speakSignal(17,10)
+        
+    # Definieren der Aktivierungsphase. Solange der thread gestartet ist, können Kommandos zum triggern der Methoden aus der Activities Klasse gesagt werden.
+    # 
+    def active(self,rec):
+        print("active")
+        # Thread definieren
+        t = threading.Thread(target=Speech.thread_timer)
+        # Thread starten
+        t.start()
+        i=0
+        # solange Thread aktiv
+        while t.is_alive():
+            print('call a command')
+            # hole die Daten aus der Queue, bzw. aus dem Stream
+            data = q.get()
+            if rec.AcceptWaveform(data):
+                print("second record")
+                # 
+                res = json.loads(rec.Result())
+                if 'Weiter'.upper() in res['text'].upper():
+                    Activities.success_Sound()
+                    Activities.impuls(18)
+                    #t.Join()
+                    break
+                elif 'Start'.upper() in res['text'].upper():
+                    Activities.success_Sound()
+                    Activities.impuls(23)
+                    #t.Join()
+                    break
+                print(res['text'])
+
 #Main Klasse
 def callback(indata, frames, time, status):
-    #Startsound
-    
     """This is called (from a separate thread) for each audio block."""
     if status:
         print(status, file=sys.stderr)
@@ -49,10 +87,10 @@ if __name__ == '__main__':
         print('*' * 80)
         # Aktivierung der vosk Spracherkennung mit Übergabe des geladenen Models. Übersetze das Gesprochene in Text.
         rec = vosk.KaldiRecognizer(model, args.samplerate)
-        t = threading.Thread(target=Speech.gpio_Input)
+        #t = threading.Thread(target=Speech.gpio_Input)
         # Thread starten
-        t.start()
-        Speech.audio_Start()
+        #t.start()
+        Activities.audio_Start()
         while True:
             # Daten aus der Queue ziehen
             data = q.get()
@@ -68,8 +106,8 @@ if __name__ == '__main__':
                 print(res)
                 # wenn der Aktivierungscode herausgehört wurde, wird die active Methode von Speech gestartet
                 if Speech.STARTCODE == res['text']:
-                    Speech.success_Sound()
+                    Activities.success_Sound()
                     Speech.active(rec)
-                    Speech.fail_Sound()                    
+                    Activities.fail_Sound()                    
             else:                
                 pass

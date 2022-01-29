@@ -1,9 +1,14 @@
 import gpiozero
-#from Speech import Speech
+from RaspiAPI import RaspiAPI
 
 class Activities:
 # Definiere die Aktivitäten, die mit deiner Sprache gesteuert werden können.
     LICHT_LED = LED_TOR = None
+    RaspiAPI = RaspiAPI()
+
+    def speakSignal(GPIO, time):
+        RaspiAPI.power_gpio_time(RaspiAPI,GPIO,time)
+
     
     def licht(GPIO):
         # Schalte das Licht an und aus
@@ -22,10 +27,16 @@ class Activities:
         print(f" Schalte das Tor an mit {GPIO}")
     
     def impuls(GPIO):
-        #Pin ist für 2 Sekunden auf High
-        led = gpiozero.LED(GPIO)
-        #speech.power_gpio(GPIO,led)
-        # warte 10 Sekunden
-        time.sleep(2)
-        # Schalte die grüne LED wieder aus.
-        #speech.close_gpio(GPIO,led)
+        RaspiAPI.power_gpio_time(RaspiAPI,GPIO,2)
+    
+    def audio_Start():
+        filename = 'audio/SystemStart.wav'
+        RaspiAPI.play_Audio(filename)
+
+    def success_Sound():
+        filename = 'audio/Success.wav'
+        RaspiAPI.play_Audio(filename)
+
+    def fail_Sound():
+        filename = 'audio/Fail.wav'
+        RaspiAPI.play_Audio(filename)
