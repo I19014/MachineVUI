@@ -10,135 +10,9 @@ import time
 import gpiozero
 import RPi.GPIO as GPIO
 import simpleaudio as sa
+from Speech import Speech
 
 q = queue.Queue()
-
-class Activities:
-# Definiere die Aktivitäten, die mit deiner Sprache gesteuert werden können.
-    LICHT_LED = LED_TOR = None
-    
-    def licht(GPIO):
-        # Schalte das Licht an und aus
-        print(f" Schalte das Licht an/aus mit {GPIO}")
-        if Activities.LICHT_LED is None:
-            Activities.LICHT_LED = gpiozero.LED(GPIO)
-        try:
-            Activities.LICHT_LED.toggle()
-            
-        # if any error occurs call exception
-        except gpiozero.GPIOZeroError as err:
-            print("Error occured: {0}".format(err))
-    
-    def tor(GPIO):
-        # zur Demonstrationszwecken wird hier nun eine Ausgabe definiert. 
-        print(f" Schalte das Tor an mit {GPIO}")
-    
-    def impuls(GPIO):
-        #Pin ist für 2 Sekunden auf High
-        led = gpiozero.LED(GPIO)
-        speech.power_gpio(GPIO,led)
-        # warte 10 Sekunden
-        time.sleep(2)
-        # Schalte die grüne LED wieder aus.
-        speech.close_gpio(GPIO,led)
-
-
-
-class speech: 
-    
-    STARTCODE = 'computer'
-    def __init__(self,startcode):
-        self.STARTCODE = startcode
-    # Unsere Thread Funktion
-    def thread_timer(self):
-        # Aktiviere GPIO 17, um die grüne LED zum Leuchten zu bringen. 
-        led = gpiozero.LED(17)
-        self.power_gpio(17,led)
-        # warte 10 Sekunden
-        time.sleep(10)
-        # Schalte die grüne LED wieder aus.
-        self.close_gpio(17,led)
-
-    def gpio_Input(self):
-        #Statusausgabe bei Eingangssignal
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(19, GPIO.IN)
-        filename = 'audio/SystemStart.wav'
-        wave_object = sa.WaveObject.from_wave_file(filename)
-        while True:
-            if GPIO.input(19) == 0:
-                pass
-            else:
-                play_obj = wave_object.play()
-                play_obj.wait_done() 
-
-    def audio_Start(self):
-        filename = 'audio/SystemStart.wav'
-        self.play_Audio(filename)
-
-    def success_Sound(self):
-        filename = 'audio/Success.wav'
-        self.play_Audio(filename)
-
-    def fail_Sound(self):
-        filename = 'audio/Fail.wav'
-        self.play_Audio(filename)
-
-    def play_Audio(self, audio):
-        filename = audio
-        wave_object = sa.WaveObject.from_wave_file(filename)
-        play_obj = wave_object.play()
-        play_obj.wait_done() 
-        
-    # Definieren der Aktivierungsphase. Solange der thread gestartet ist, können Kommandos zum triggern der Methoden aus der Activities Klasse gesagt werden.
-    # 
-    def active(self,rec):
-        print("active")
-        # Thread definieren
-        t = threading.Thread(target=self.thread_timer)
-        # Thread starten
-        t.start()
-        i=0
-        # solange Thread aktiv
-        while t.is_alive():
-            print('call a command')
-            # hole die Daten aus der Queue, bzw. aus dem Stream
-            data = q.get()
-            if rec.AcceptWaveform(data):
-                print("second record")
-                # 
-                res = json.loads(rec.Result())
-                if 'Weiter'.upper() in res['text'].upper():
-                    speech.success_Sound()
-                    Activities.impuls(18)
-                    #t.Join()
-                    break
-                elif 'Start'.upper() in res['text'].upper():
-                    speech.success_Sound()
-                    Activities.impuls(23)
-                    #t.Join()
-                    break
-                print(res['text'])
-
-    def power_gpio(self,GPIO,led):
-        print(f"Power {GPIO}")
-        try:
-            # switch LED on
-            if not led.is_lit:
-                led.on()
-        # if any error occurs call exception
-        except gpiozero.GPIOZeroError as err:
-            print("Error occured: {0}".format(err))
-    
-    def close_gpio(self,GPIO,led):
-        print(f"Close {GPIO}")
-        try:
-            # switch LED off
-            if led.is_lit:
-                led.off()
-        # if any error occurs call exception
-        except gpiozero.GPIOZeroError as err:
-            print("Error occured: {0}".format(err))
 
 #Main Klasse
 def callback(indata, frames, time, status):
@@ -168,17 +42,17 @@ if __name__ == '__main__':
         #exit(1)
     model = vosk.Model(args.model)
     # Speech Objekt erstellen und Übergabe des Aktivierungsworts
-    speech = speech('hallo computer')    
+    Speech = Speech('hallo computer')    
     # 
     with sd.RawInputStream(samplerate=args.samplerate, blocksize=8000, device=None,dtype='int16',
                             channels=1, callback=callback):
         print('*' * 80)
         # Aktivierung der vosk Spracherkennung mit Übergabe des geladenen Models. Übersetze das Gesprochene in Text.
         rec = vosk.KaldiRecognizer(model, args.samplerate)
-        t = threading.Thread(target=speech.gpio_Input)
+        t = threading.Thread(target=Speech.gpio_Input)
         # Thread starten
         t.start()
-        speech.audio_Start()
+        Speech.audio_Start()
         while True:
             # Daten aus der Queue ziehen
             data = q.get()
@@ -193,9 +67,9 @@ if __name__ == '__main__':
                 res = json.loads(x)
                 print(res)
                 # wenn der Aktivierungscode herausgehört wurde, wird die active Methode von Speech gestartet
-                if speech.STARTCODE == res['text']:
-                    speech.success_Sound()
-                    speech.active(rec)
-                    speech.fail_Sound()                    
+                if Speech.STARTCODE == res['text']:
+                    Speech.success_Sound()
+                    Speech.active(rec)
+                    Speech.fail_Sound()                    
             else:                
                 pass
