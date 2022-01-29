@@ -15,7 +15,7 @@ Weiter_Command_Word = 'Weiter'
 Start_Command_Word = 'Start'
 
 #Paths
-Model_Path = '/home/pi/Sprachggesteuerte-Maschinenschnittstelle/TestAnwendungen/OfflineSpeechassistent/model'
+Model_Path = '/home/pi/Sprachggesteuerte-Maschinenschnittstelle/final/model'
 
 q = queue.Queue()
 act =  Activities()
@@ -87,7 +87,7 @@ if __name__ == '__main__':
         # Aktivierung der vosk Spracherkennung mit Übergabe des geladenen Models. Übersetze das Gesprochene in Text.
         rec = vosk.KaldiRecognizer(model, args.samplerate)
         act = Activities()
-        Activities.audio_Start()
+        act.audio_Start()
         while True:
             # Daten aus der Queue ziehen
             data = q.get()
@@ -103,8 +103,8 @@ if __name__ == '__main__':
                 print(res)
                 # wenn der Aktivierungscode herausgehört wurde, wird die active Methode von Speech gestartet
                 if Speech.STARTCODE == res['text']:
-                    Activities.success_Sound()
+                    act.success_Sound()
                     Speech.active(rec)
-                    Activities.fail_Sound()                    
+                    act.fail_Sound()                    
             else:                
                 pass

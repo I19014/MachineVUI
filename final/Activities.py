@@ -3,9 +3,10 @@ from RaspiAPI import RaspiAPI
 import threading
 
 #Audio Files
-Success_Audio = 'audio/Success.wav'
-Fail_Audio = 'audio/Fail.wav'
-Start_Audio = 'audio/SystemStart.wav'
+Directory = '/home/pi/Sprachggesteuerte-Maschinenschnittstelle/final/audio'
+Success_Audio = 'Success.wav'
+Fail_Audio = 'Fail.wav'
+Start_Audio = 'SystemStart.wav'
 
 # Output Pins
 Listen_Command_Pin = 25
@@ -35,12 +36,12 @@ class Activities:
         self.pin_Info("Open for Commands; Open Pin for 10 sec", Listen_Command_Pin)
 
     def start(self):
-        Activities.success_Sound()
+        self.success_Sound()
         Activities.impuls(Start_Pin)
         self.pin_Info("Run Command 'Start'; Impulse Pin", Start_Pin)
     
     def weiter(self):
-        Activities.success_Sound()
+        self.success_Sound()
         Activities.impuls(Weiter_Pin)
         self.pin_Info("Run Command 'Weiter'; Impulse Pin", Weiter_Pin)
     
@@ -63,16 +64,19 @@ class Activities:
     
     # print Audio
 
-    def audio_Start():
-        RaspiAPI.play_Audio(Start_Audio)
+    def audio_Start(self):
+        filename =self.buildPath(Start_Audio)
+        RaspiAPI.play_Audio(filename)
         print("Play start audio")
 
-    def success_Sound():
-        RaspiAPI.play_Audio(Success_Audio)
+    def success_Sound(self):
+        filename =self.buildPath(Success_Audio)
+        RaspiAPI.play_Audio(filename)
         print("Play success audio")
 
-    def fail_Sound():
-        RaspiAPI.play_Audio(Fail_Audio)
+    def fail_Sound(self):
+        filename =self.buildPath(Fail_Audio)
+        RaspiAPI.play_Audio(filename)
         print("Play fail audio")
 
     #Machine Signals
@@ -81,4 +85,8 @@ class Activities:
         t.start()
 
     def Command_Finished_Signal(self):
-         RaspiAPI.gpio_Input(RaspiAPI,Command_finished_Pin, Success_Audio)
+        filename = self.buildPath(Success_Audio) 
+        RaspiAPI.gpio_Input(RaspiAPI,Command_finished_Pin, filename)
+
+    def buildPath(self, audio_File):
+         return f"{Directory}/{audio_File}"
