@@ -86,25 +86,30 @@ if __name__ == '__main__':
         print('*' * 80)
         # Aktivierung der vosk Spracherkennung mit Übergabe des geladenen Models. Übersetze das Gesprochene in Text.
         rec = vosk.KaldiRecognizer(model, args.samplerate)
-        act = Activities()
         act.audio_Start()
         while True:
             # Daten aus der Queue ziehen
-            data = q.get()
-            print("start to speak")
-            if rec.AcceptWaveform(data):
-                # erhalte das erkannte gesprochene als String zurück
-                x = rec.Result()
-                print("accepted")
-                print(x)
-                print(rec.Result())
-                # wandelt den String in Json um
-                res = json.loads(x)
-                print(res)
-                # wenn der Aktivierungscode herausgehört wurde, wird die active Methode von Speech gestartet
-                if Speech.STARTCODE == res['text']:
-                    act.success_Sound()
-                    Speech.active(rec)
-                    act.fail_Sound()                    
-            else:                
-                pass
+            is_speech_open = act.Is_Speech_Open()
+            #print(f"{is_speech_open}")
+            if not is_speech_open:
+                print("Speech recognition is closed")
+                time.sleep(0.5)
+            else:
+                data = q.get()
+                print("start to speak")
+                if rec.AcceptWaveform(data):
+                    # erhalte das erkannte gesprochene als String zurück
+                    x = rec.Result()
+                    print("accepted")
+                    print(x)
+                    print(rec.Result())
+                    # wandelt den String in Json um
+                    res = json.loads(x)
+                    print(res)
+                    # wenn der Aktivierungscode herausgehört wurde, wird die active Methode von Speech gestartet
+                    if Speech.STARTCODE == res['text']:
+                        act.success_Sound()
+                        Speech.active(rec)
+                        act.fail_Sound()                    
+                else:                
+                    pass

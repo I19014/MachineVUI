@@ -15,6 +15,7 @@ Start_Pin = 23
 
 #Input Pins
 Command_finished_Pin = 17
+Speech_open_Pin = 4
 
 class Activities:
 # Definiere die Aktivitäten, die mit deiner Sprache gesteuert werden können.
@@ -23,6 +24,9 @@ class Activities:
     
     def __init__(self):
         self.init_Command_End_Signal()
+        self.Init_Speech_open()
+        for thread in threading.enumerate(): 
+            print(thread.name)
 
     # Console Output
     def pin_Info(self,text,GPIO):
@@ -82,11 +86,24 @@ class Activities:
     #Machine Signals
     def init_Command_End_Signal(self):
         t = threading.Thread(target=self.Command_Finished_Signal)
+        t.name = 'Command_End_Thread'
         t.start()
 
     def Command_Finished_Signal(self):
         filename = self.buildPath(Success_Audio) 
         RaspiAPI.gpio_Input(RaspiAPI,Command_finished_Pin, filename)
 
+    def Init_Speech_open(self):
+        t = threading.Thread(target=self.Speech_open)
+        t.name = 'Speech_Open_Thread'
+        t.start()
+
+    def Speech_open(self):
+        RaspiAPI.Speech_Open_Input(RaspiAPI, Speech_open_Pin)
+
+    #Helper functions
     def buildPath(self, audio_File):
          return f"{Directory}/{audio_File}"
+
+    def Is_Speech_Open(self):
+        return RaspiAPI.IsSpeechOpen

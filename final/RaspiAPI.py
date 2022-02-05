@@ -5,6 +5,10 @@ import time
 
 
 class RaspiAPI:
+
+    IsSpeechOpen = True
+    GotEndSignal = False
+
     def gpio_Input(self, pin, filename):
         #Statusausgabe bei Eingangssignal
         GPIO.setmode(GPIO.BCM)
@@ -13,6 +17,16 @@ class RaspiAPI:
             #print(f"Pin: {pin} Input: {GPIO.input(pin)}")
             if GPIO.input(pin) == 1:
                 self.play_Audio(filename)
+            time.sleep(0.5)
+
+    def End_Signal_Input(self, pin):
+        #Statusausgabe bei Eingangssignal
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(pin, GPIO.IN)
+        while True:
+            #print(f"Pin: {pin} Input: {GPIO.input(pin)}")
+            if GPIO.input(pin) == 1:
+                self.GotEndSignal = True
             time.sleep(0.5)
     
 
@@ -50,3 +64,18 @@ class RaspiAPI:
         time.sleep(sleepTime)
         # Schalte die grüne LED wieder aus.
         self.close_gpio(GPIO,led)
+
+    def Speech_Open_Input(self, pin):
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(pin, GPIO.IN)
+        while True:
+            if GPIO.input(pin) == 1:
+                print(f"Pin: {pin} Input: {GPIO.input(pin)}")
+                print(f"Is Speech Open: {self.IsSpeechOpen}")
+                self.toggle_Speech_Input(self)
+                print(f"Is Speech Open: {self.IsSpeechOpen}")
+                time.sleep(5)
+            time.sleep(0.5)
+                
+    def toggle_Speech_Input(self):
+        self.IsSpeechOpen =  not self.IsSpeechOpen
