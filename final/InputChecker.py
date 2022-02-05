@@ -4,6 +4,7 @@ from RaspiAPI import RaspiAPI
 #Input Pins
 Command_finished_Pin = 17
 Speech_open_Pin = 4
+Ask_Next_Pin = 27
 
 class InputChecker:
 
@@ -25,6 +26,11 @@ class InputChecker:
         t.name = 'Speech_Open_Thread'
         t.start()
 
+    def Init_Speech_open(self):
+        t = threading.Thread(target=self.Ask_Next)
+        t.name = 'Ask_Next_Thread'
+        t.start()
+
     #Checkers
     def Command_Finished_Signal(self):
         #filename = self.buildPath(Success_Audio) 
@@ -33,9 +39,15 @@ class InputChecker:
     def Speech_open(self):
         RaspiAPI.Speech_Open_Input(RaspiAPI, Speech_open_Pin)
 
+    def Ask_Next(self):
+        RaspiAPI.Ask_Next_Input(RaspiAPI, Ask_Next_Pin)
+
     #Getter
     def Get_Speech_Open(self):
         return RaspiAPI.IsSpeechOpen
 
     def Get_End_Signal(self):
         return RaspiAPI.GotEndSignal
+
+    def Get_AskNext_Signal(self):
+        return RaspiAPI.AskGoNext

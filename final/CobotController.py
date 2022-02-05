@@ -39,7 +39,6 @@ class Speech:
         t = threading.Thread(target=Speech.thread_timer)
         # Thread starten
         t.start()
-        i=0
         # solange Thread aktiv
         while t.is_alive():
             print('call a command')
@@ -56,7 +55,24 @@ class Speech:
                     break
                 print(res['text'])
 
-    def listenWakeWord(self):
+    def Listen_Command(self,rec):
+        print("start Listen")
+        act.Ask_Weiter()
+        t = threading.Thread(target=Speech.thread_timer)
+        t.start()
+        while t.is_alive():
+            print("start to speak")
+            data = q.get()            
+            if rec.AcceptWaveform(data):
+                res = json.loads(rec.Result())
+                print(rec.Result())
+                if Weiter_Command_Word.upper() in res['text'].upper():
+                    Activities.weiter(act)
+                    break
+        print("fail")
+        act.AskNext_NoInput()
+
+    def listenWakeWord(self,rec):
         data = q.get()
         print("start to speak")
         if rec.AcceptWaveform(data):
@@ -117,12 +133,15 @@ if __name__ == '__main__':
             # Daten aus der Queue ziehen
             is_speech_open = ic.Get_Speech_Open()
             is_EndSignal_active = ic.Get_End_Signal()
+            is_AskNextSignal_active = ic.Get_AskNext_Signal()
             #print(f"{is_speech_open}")
             if is_EndSignal_active:
                 print("End Command played")
                 act.Play_End_Command_Sound()
             elif not is_speech_open:
                 act.Speech_Recognition_Closed()
+            elif is_AskNextSignal_active:
+                Speech.Listen_Command(rec)
             else:
-                Speech.listenWakeWord()
+                Speech.listenWakeWord(rec)
                 

@@ -13,10 +13,6 @@ Listen_Command_Pin = 25
 Weiter_Pin = 18
 Start_Pin = 23
 
-#Input Pins
-Command_finished_Pin = 17
-Speech_open_Pin = 4
-
 class Activities:
 # Definiere die Aktivitäten, die mit deiner Sprache gesteuert werden können.
     LICHT_LED = LED_TOR = None
@@ -33,6 +29,9 @@ class Activities:
     def Speech_Recognition_Closed(self):
         print("Speech recognition is closed")
         time.sleep(0.5)
+
+    def AskNext_NoInput(self):
+        RaspiAPI.reset_Ask_Go_Signal(RaspiAPI)
 
     # Voice Commands
 
@@ -68,6 +67,10 @@ class Activities:
             print("Error occured: {0}".format(err))
     
     # print Audio
+
+    def Ask_Weiter(self):
+        text = "Sage weiter um fortzufahren"
+        RaspiAPI.speak(RaspiAPI, text)
 
     def Play_End_Command_Sound(self):
         self.success_Sound()
