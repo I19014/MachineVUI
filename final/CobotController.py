@@ -56,6 +56,27 @@ class Speech:
                     break
                 print(res['text'])
 
+    def listenWakeWord(self):
+        data = q.get()
+        print("start to speak")
+        if rec.AcceptWaveform(data):
+            # erhalte das erkannte gesprochene als String zurück
+            x = rec.Result()
+            print("accepted")
+            print(x)
+            print(rec.Result())
+            # wandelt den String in Json um
+            res = json.loads(x)
+            print(res)
+            # wenn der Aktivierungscode herausgehört wurde, wird die active Methode von Speech gestartet
+            if Speech.STARTCODE == res['text']:
+                act.success_Sound()
+                Speech.active(rec)
+                act.fail_Sound()                    
+        else:                
+            pass
+
+
 #Main Klasse
 def callback(indata, frames, time, status):
     """This is called (from a separate thread) for each audio block."""
@@ -101,24 +122,7 @@ if __name__ == '__main__':
                 print("End Command played")
                 act.Play_End_Command_Sound()
             elif not is_speech_open:
-                print("Speech recognition is closed")
-                time.sleep(0.5)
+                act.Speech_Recognition_Closed()
             else:
-                data = q.get()
-                print("start to speak")
-                if rec.AcceptWaveform(data):
-                    # erhalte das erkannte gesprochene als String zurück
-                    x = rec.Result()
-                    print("accepted")
-                    print(x)
-                    print(rec.Result())
-                    # wandelt den String in Json um
-                    res = json.loads(x)
-                    print(res)
-                    # wenn der Aktivierungscode herausgehört wurde, wird die active Methode von Speech gestartet
-                    if Speech.STARTCODE == res['text']:
-                        act.success_Sound()
-                        Speech.active(rec)
-                        act.fail_Sound()                    
-                else:                
-                    pass
+                Speech.listenWakeWord()
+                

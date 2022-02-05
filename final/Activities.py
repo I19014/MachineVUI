@@ -24,15 +24,15 @@ class Activities:
     
     def __init__(self, raspi):
         RaspiAPI = raspi
-        #self.init_Command_End_Signal()
-        #self.Init_Speech_open()
-        #for thread in threading.enumerate(): 
-            #Wprint(thread.name)
 
     # Console Output
     def pin_Info(self,text,GPIO):
         # zur Demonstrationszwecken wird hier nun eine Ausgabe definiert. 
         print(f"Action: {text}: {GPIO}")
+
+    def Speech_Recognition_Closed(self):
+        print("Speech recognition is closed")
+        time.sleep(0.5)
 
     # Voice Commands
 
@@ -88,27 +88,6 @@ class Activities:
         RaspiAPI.play_Audio(filename)
         print("Play fail audio")
 
-    #Machine Signals
-    def init_Command_End_Signal(self):
-        t = threading.Thread(target=self.Command_Finished_Signal)
-        t.name = 'Command_End_Thread'
-        t.start()
-
-    def Command_Finished_Signal(self):
-        filename = self.buildPath(Success_Audio) 
-        RaspiAPI.gpio_Input(RaspiAPI,Command_finished_Pin, filename)
-
-    def Init_Speech_open(self):
-        t = threading.Thread(target=self.Speech_open)
-        t.name = 'Speech_Open_Thread'
-        t.start()
-
-    def Speech_open(self):
-        RaspiAPI.Speech_Open_Input(RaspiAPI, Speech_open_Pin)
-
     #Helper functions
     def buildPath(self, audio_File):
          return f"{Directory}/{audio_File}"
-
-    def Is_Speech_Open(self):
-        return RaspiAPI.IsSpeechOpen
