@@ -8,6 +8,8 @@ import vosk
 import threading
 import time
 from Activities import Activities
+from RaspiAPI import RaspiAPI
+from InputChecker import InputChecker
 
 #Commands
 STARTWORD = 'hallo computer'
@@ -18,7 +20,7 @@ Start_Command_Word = 'Start'
 Model_Path = '/home/pi/Sprachggesteuerte-Maschinenschnittstelle/final/model'
 
 q = queue.Queue()
-act =  Activities()
+act =  None
 
 class Speech: 
     
@@ -86,12 +88,19 @@ if __name__ == '__main__':
         print('*' * 80)
         # Aktivierung der vosk Spracherkennung mit Übergabe des geladenen Models. Übersetze das Gesprochene in Text.
         rec = vosk.KaldiRecognizer(model, args.samplerate)
+        api = RaspiAPI()
+        act = Activities(api)
+        ic = InputChecker(api)
         act.audio_Start()
         while True:
             # Daten aus der Queue ziehen
-            is_speech_open = act.Is_Speech_Open()
+            is_speech_open = ic.Get_Speech_Open()
+            is_EndSignal_active = ic.Get_End_Signal()
             #print(f"{is_speech_open}")
-            if not is_speech_open:
+            if is_EndSignal_active:
+                print("End Command played")
+                act.Play_End_Command_Sound()
+            elif not is_speech_open:
                 print("Speech recognition is closed")
                 time.sleep(0.5)
             else:

@@ -20,13 +20,14 @@ Speech_open_Pin = 4
 class Activities:
 # Definiere die Aktivitäten, die mit deiner Sprache gesteuert werden können.
     LICHT_LED = LED_TOR = None
-    RaspiAPI = RaspiAPI()      
+    RaspiAPI = None      
     
-    def __init__(self):
-        self.init_Command_End_Signal()
-        self.Init_Speech_open()
-        for thread in threading.enumerate(): 
-            print(thread.name)
+    def __init__(self, raspi):
+        RaspiAPI = raspi
+        #self.init_Command_End_Signal()
+        #self.Init_Speech_open()
+        #for thread in threading.enumerate(): 
+            #Wprint(thread.name)
 
     # Console Output
     def pin_Info(self,text,GPIO):
@@ -67,6 +68,10 @@ class Activities:
             print("Error occured: {0}".format(err))
     
     # print Audio
+
+    def Play_End_Command_Sound(self):
+        self.success_Sound()
+        RaspiAPI.reset_End_Signal(RaspiAPI)
 
     def audio_Start(self):
         filename =self.buildPath(Start_Audio)

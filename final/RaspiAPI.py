@@ -27,6 +27,7 @@ class RaspiAPI:
             #print(f"Pin: {pin} Input: {GPIO.input(pin)}")
             if GPIO.input(pin) == 1:
                 self.GotEndSignal = True
+                print("Set EndSignal")
             time.sleep(0.5)
     
 
@@ -79,3 +80,6 @@ class RaspiAPI:
                 
     def toggle_Speech_Input(self):
         self.IsSpeechOpen =  not self.IsSpeechOpen
+
+    def reset_End_Signal(self):
+        self.GotEndSignal = False
