@@ -49,6 +49,9 @@ class Activities:
         self.success_Sound()
         Activities.impuls(Weiter_Pin)
         self.pin_Info("Run Command 'Weiter'; Impulse Pin", Weiter_Pin)
+
+    def Abbruch(self):
+        self.fail_Sound()
     
     # print Pins
 

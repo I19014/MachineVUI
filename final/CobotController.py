@@ -18,6 +18,7 @@ Weiter_Command_Word = 'Weiter'
 Start_Command_Word = 'Start'
 Weiter_Command_Words = ['Weiter', 'weiter gehts', 'rausnehmen']
 Start_Command_Words = ['Start', 'Los gehts', 'Beginne']
+Abbruch_Command_Words = ['Abbruch', 'Halt', 'Stopp']
 
 #Paths
 Model_Path = '/home/pi/Sprachggesteuerte-Maschinenschnittstelle/final/model'
@@ -70,6 +71,9 @@ class Speech:
         elif self.isCommand(Start_Command_Words, text):
             Activities.start(act)
             return True
+        elif self.isCommand(Abbruch_Command_Words, text):
+            Activities.Abbruch(act)
+            return True
         return False
         
 
@@ -83,9 +87,13 @@ class Speech:
             data = q.get()            
             if rec.AcceptWaveform(data):
                 res = json.loads(rec.Result())
+                text = res['text'].upper()
                 print(rec.Result())
-                if Weiter_Command_Word.upper() in res['text'].upper():
+                if self.isCommand(Weiter_Command_Words, text):
                     Activities.weiter(act)
+                    break
+                elif self.isCommand(Abbruch_Command_Words, text):
+                    Activities.Abbruch(act)
                     break
         print("fail")
         act.AskNext_NoInput()
