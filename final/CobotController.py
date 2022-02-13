@@ -10,11 +10,14 @@ import time
 from Activities import Activities
 from RaspiAPI import RaspiAPI
 from InputChecker import InputChecker
+import numpy as np
 
 #Commands
 STARTWORD = 'hallo computer'
 Weiter_Command_Word = 'Weiter'
 Start_Command_Word = 'Start'
+Weiter_Command_Words = ['Weiter', 'weiter gehts', 'rausnehmen']
+Start_Command_Words = ['Start', 'Los gehts', 'Beginne']
 
 #Paths
 Model_Path = '/home/pi/Sprachggesteuerte-Maschinenschnittstelle/final/model'
@@ -30,6 +33,14 @@ class Speech:
     # Unsere Thread Funktion
     def thread_timer(self):
         Activities.Listen_Command(act,10)
+
+    def isCommand(self, cmdWords, text):
+        for word in cmdWords:
+            #print(word.upper())
+            #print(text)
+            if word.upper() in text.upper():
+                return True
+        return False
         
     # Definieren der Aktivierungsphase. Solange der thread gestartet ist, können Kommandos zum triggern der Methoden aus der Activities Klasse gesagt werden.
     # 
@@ -47,13 +58,20 @@ class Speech:
             if rec.AcceptWaveform(data):
                 print("second record")
                 res = json.loads(rec.Result())
-                if Weiter_Command_Word.upper() in res['text'].upper():
-                    Activities.weiter(act)
-                    break
-                elif Start_Command_Word.upper() in res['text'].upper():
-                    Activities.start(act)
+                if self.checkCommands(res['text'].upper()):
                     break
                 print(res['text'])
+
+    def checkCommands(self, text):        
+        #if Weiter_Command_Word.upper() in res['text'].upper():
+        if self.isCommand(Weiter_Command_Words, text):
+            Activities.weiter(act)
+            return True
+        elif self.isCommand(Start_Command_Words, text):
+            Activities.start(act)
+            return True
+        return False
+        
 
     def Listen_Command(self,rec):
         print("start Listen")
@@ -88,9 +106,30 @@ class Speech:
             if Speech.STARTCODE == res['text']:
                 act.success_Sound()
                 Speech.active(rec)
-                act.fail_Sound()                    
+                act.fail_Sound()
+            self.OneShot_Activation(Speech.STARTCODE, Weiter_Command_Words, res['text'])                   
         else:                
             pass
+
+    def OneShot_Activation(self, StartCode, CommandArray, text):
+            splitSymbol = " "
+            splittedText = text.split(splitSymbol)
+            splittedStartCode = StartCode.split(splitSymbol)
+            x = 0
+            while x < len(splittedStartCode):
+                #print (splittedStartCode[x])
+                #print (splittedText[0])
+                if splittedStartCode[x] == splittedText[0]:
+                    splittedText = np.delete(splittedText, 0)
+                    #print (splittedText)
+                    #print("Go on Oneshot")
+                    x = x+1
+                    pass
+                else:
+                     #print("Abbruch oneshot")
+                    return
+            #print(splitSymbol.join(splittedText))
+            self.checkCommands(splitSymbol.join(splittedText))
 
 
 #Main Klasse

@@ -82,6 +82,10 @@ class RaspiAPI:
         except gpiozero.GPIOZeroError as err:
             print("Error occured: {0}".format(err))
 
+    def close_Pin(self, pin):
+        led = gpiozero.LED(pin)
+        close_gpio(pin,led)
+
     def power_gpio_time(self,GPIO,sleepTime):
         led = gpiozero.LED(GPIO)
         self.power_gpio(GPIO,led)
