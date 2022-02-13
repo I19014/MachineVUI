@@ -1,6 +1,7 @@
 import gpiozero
 from RaspiAPI import RaspiAPI
 import threading
+import time
 
 #Audio Files
 Directory = '/home/pi/Sprachggesteuerte-Maschinenschnittstelle/final/audio'

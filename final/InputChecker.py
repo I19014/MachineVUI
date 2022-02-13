@@ -14,6 +14,7 @@ class InputChecker:
         RaspiAPI = raspi
         self.init_Command_End_Signal()
         self.Init_Speech_open()
+        self.Init_ask_Next()
     
     #Init of Checkers
     def init_Command_End_Signal(self):
@@ -26,7 +27,7 @@ class InputChecker:
         t.name = 'Speech_Open_Thread'
         t.start()
 
-    def Init_Speech_open(self):
+    def Init_ask_Next(self):
         t = threading.Thread(target=self.Ask_Next)
         t.name = 'Ask_Next_Thread'
         t.start()
