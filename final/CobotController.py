@@ -186,6 +186,8 @@ if __name__ == '__main__':
                 print("End Command played")
                 act.Play_End_Command_Sound()
             elif not is_speech_open:
+                #Queue leeren
+                data = q.get() 
                 act.Speech_Recognition_Closed()
             elif is_AskNextSignal_active:
                 Speech.Listen_Command(rec)
