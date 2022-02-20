@@ -3,6 +3,9 @@ import RPi.GPIO as GPIO
 import simpleaudio as sa
 import time
 import pyttsx3
+import wave
+from io import BytesIO
+from picotts import PicoTTS
 
 
 class RaspiAPI:
@@ -48,7 +51,12 @@ class RaspiAPI:
         play_obj = wave_object.play()
         play_obj.wait_done()
 
-    def speak(self, text):
+    def play_Audio2(audio):
+        wave_object = sa.WaveObject.from_wave_read(audio)
+        play_obj = wave_object.play()
+        play_obj.wait_done()
+
+    def speak2(self, text):
         engine = self.init_TTS()
         engine.say(text)
         engine.runAndWait()
@@ -61,6 +69,14 @@ class RaspiAPI:
         volume = engine.getProperty('volume')
         engine.setProperty('volume', volume+1.25)
         return engine
+
+
+    def speak(self, text):
+        picotts = PicoTTS()
+        picotts.voice = 'de-DE'
+        wavs = picotts.synth_wav(text)
+        wav = wave.open(BytesIO(wavs))
+        self. play_Audio2(wav)
 
     def power_gpio(GPIO,led):
         print(f"Power {GPIO}")
