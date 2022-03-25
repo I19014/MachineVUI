@@ -127,14 +127,17 @@ class Speech:
             while x < len(splittedStartCode):
                 #print (splittedStartCode[x])
                 #print (splittedText[0])
-                if splittedStartCode[x] == splittedText[0]:
-                    splittedText = np.delete(splittedText, 0)
-                    #print (splittedText)
-                    #print("Go on Oneshot")
-                    x = x+1
-                    pass
+                if len(splittedText) != 0:
+                    if splittedStartCode[x] == splittedText[0]:
+                        splittedText = np.delete(splittedText, 0)
+                        #print (splittedText)
+                        #print("Go on Oneshot")
+                        x = x+1
+                        pass
+                    else:
+                        #print("Abbruch oneshot")
+                        return
                 else:
-                     #print("Abbruch oneshot")
                     return
             #print(splitSymbol.join(splittedText))
             self.checkCommands(splitSymbol.join(splittedText))
