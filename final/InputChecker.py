@@ -3,8 +3,8 @@ from RaspiAPI import RaspiAPI
 
 #Input Pins
 Command_finished_Pin = 17
-Speech_open_Pin = 4
-Ask_Next_Pin = 27
+Speech_open_Pin = 23
+Ask_Next_Pin = 25
 
 class InputChecker:
 
@@ -12,7 +12,7 @@ class InputChecker:
 
     def __init__(self, raspi):
         RaspiAPI = raspi
-        self.init_Command_End_Signal()
+        #self.init_Command_End_Signal()
         self.Init_Speech_open()
         self.Init_ask_Next()
     

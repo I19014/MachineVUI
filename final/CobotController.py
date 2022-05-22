@@ -10,15 +10,20 @@ import time
 from Activities import Activities
 from RaspiAPI import RaspiAPI
 from InputChecker import InputChecker
+from Word import Word as custom_Word
 import numpy as np
 
 #Commands
-STARTWORD = 'hallo computer'
+STARTWORD = 'hallo anlage'
+STARTWORD2 = 'hallo computer'
 Weiter_Command_Word = 'Weiter'
 Start_Command_Word = 'Start'
-Weiter_Command_Words = ['Weiter', 'weiter gehts', 'rausnehmen']
-Start_Command_Words = ['Start', 'Los gehts', 'Beginne']
-Abbruch_Command_Words = ['Abbruch', 'Halt', 'Stopp']
+Weiter_Command_Words = ['Weiter', 'weiter gehts', 'rausnehmen', 'entnehmen']
+Start_Command_Words = ['Start', 'Los geht''s', 'Beginne', 'Vorrichtung einlegen', 'einlegen']
+Abbruch_Command_Words = ['Abbruch', 'Halt', 'Stopp', 'Nein', "Nein danke", 'Bitte nicht', 'abbrechen']
+Verabschiedung_Command_Words = ['tschau', 'tschüss', 'Auf Wiedersehen', 'Bis Bald', 'Machs gut', 'Ade', 'Auf Wiederhören']
+Begrüßung_Command_Words = ['Wie gehts', "was geht", 'Was machen wir heute', 'hilfe', 'helfe', 'helfen']
+bestätigende_Antwort_Command_Words = ['Ja', 'bitte', 'Ja bitte', 'gerne', 'gerne doch']
 
 #Paths
 Model_Path = '/home/pi/Sprachggesteuerte-Maschinenschnittstelle/final/model'
@@ -28,7 +33,8 @@ act =  None
 
 class Speech: 
     
-    STARTCODE = 'computer'
+    STARTCODE = STARTWORD
+    STARTCODE2 = STARTWORD2
     def __init__(self,startcode):
         self.STARTCODE = startcode
     # Unsere Thread Funktion
@@ -37,8 +43,6 @@ class Speech:
 
     def isCommand(self, cmdWords, text):
         for word in cmdWords:
-            #print(word.upper())
-            #print(text)
             if word.upper() in text.upper():
                 return True
         return False
@@ -74,6 +78,12 @@ class Speech:
         elif self.isCommand(Abbruch_Command_Words, text):
             Activities.Abbruch(act)
             return True
+        elif self.isCommand(Begrüßung_Command_Words, text):
+            Activities.hallo_Command(act)
+            return True
+        elif self.isCommand(Verabschiedung_Command_Words, text):
+            Activities.goodbye_Command(act)
+            return True 
         return False
         
 
@@ -89,6 +99,9 @@ class Speech:
                 res = json.loads(rec.Result())
                 text = res['text'].upper()
                 print(rec.Result())
+                if self.isCommand(bestätigende_Antwort_Command_Words, text):
+                    Activities.weiter(act)
+                    break
                 if self.isCommand(Weiter_Command_Words, text):
                     Activities.weiter(act)
                     break
@@ -101,21 +114,36 @@ class Speech:
     def listenWakeWord(self,rec):
         data = q.get()
         print("start to speak")
+        results = []
         if rec.AcceptWaveform(data):
             # erhalte das erkannte gesprochene als String zurück
             x = rec.Result()
             print("accepted")
-            print(x)
-            print(rec.Result())
+            #print(x)
+            #print(rec.Result())
             # wandelt den String in Json um
             res = json.loads(x)
-            print(res)
+            text = res['text']
+            if text == "":
+                return
+            print('Understanded Text: ' + text)
+            results.append(x)
+            list_of_Words = []      
+            for obj in res['result']:
+                w = custom_Word(obj)  # create custom Word object
+                list_of_Words.append(w)  # and add it to list  # and add it to list
+            for word in list_of_Words:
+                print(word.to_string())
             # wenn der Aktivierungscode herausgehört wurde, wird die active Methode von Speech gestartet
-            if Speech.STARTCODE == res['text']:
+            self.OneShot_Activation(Speech.STARTCODE, Weiter_Command_Words, res['text'])
+            if Speech.STARTCODE in text or Speech.STARTCODE2 in text or 'hallo' in text or 'anlage' in text or 'computer' in text:
                 act.success_Sound()
                 Speech.active(rec)
                 act.fail_Sound()
-            self.OneShot_Activation(Speech.STARTCODE, Weiter_Command_Words, res['text'])                   
+            
+            
+            
+                               
         else:                
             pass
 
@@ -124,23 +152,11 @@ class Speech:
             splittedText = text.split(splitSymbol)
             splittedStartCode = StartCode.split(splitSymbol)
             x = 0
-            while x < len(splittedStartCode):
-                #print (splittedStartCode[x])
-                #print (splittedText[0])
-                if len(splittedText) != 0:
-                    if splittedStartCode[x] == splittedText[0]:
-                        splittedText = np.delete(splittedText, 0)
-                        #print (splittedText)
-                        #print("Go on Oneshot")
-                        x = x+1
-                        pass
-                    else:
-                        #print("Abbruch oneshot")
-                        return
-                else:
-                    return
+            if text.startswith(StartCode):
+                self.checkCommands(text)
+            
             #print(splitSymbol.join(splittedText))
-            self.checkCommands(splitSymbol.join(splittedText))
+            
 
 
 #Main Klasse
@@ -175,20 +191,21 @@ if __name__ == '__main__':
         print('*' * 80)
         # Aktivierung der vosk Spracherkennung mit Übergabe des geladenen Models. Übersetze das Gesprochene in Text.
         rec = vosk.KaldiRecognizer(model, args.samplerate)
+        rec.SetWords(True)
         api = RaspiAPI()
         act = Activities(api)
         ic = InputChecker(api)
-        act.audio_Start()
+        act.tts_start()
         while True:
             # Daten aus der Queue ziehen
             is_speech_open = ic.Get_Speech_Open()
             is_EndSignal_active = ic.Get_End_Signal()
             is_AskNextSignal_active = ic.Get_AskNext_Signal()
             #print(f"{is_speech_open}")
-            if is_EndSignal_active:
-                print("End Command played")
-                act.Play_End_Command_Sound()
-            elif not is_speech_open:
+            #if is_EndSignal_active:
+                #print("End Command played")
+                #act.Play_End_Command_Sound()
+            if not is_speech_open:
                 #Queue leeren
                 data = q.get() 
                 act.Speech_Recognition_Closed()

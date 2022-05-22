@@ -32,7 +32,7 @@ class RaspiAPI:
             #print(f"Pin: {pin} Input: {GPIO.input(pin)}")
             if GPIO.input(pin) == 1:
                 self.GotEndSignal = True
-                print("Set EndSignal")
+                #print("Set EndSignal")
             time.sleep(0.5)
 
     def Ask_Next_Input(self, pin):
@@ -76,7 +76,7 @@ class RaspiAPI:
         picotts.voice = 'de-DE'
         wavs = picotts.synth_wav(text)
         wav = wave.open(BytesIO(wavs))
-        self. play_Audio2(wav)
+        self.play_Audio2(wav)
 
     def power_gpio(GPIO,led):
         print(f"Power {GPIO}")
@@ -118,6 +118,10 @@ class RaspiAPI:
                 print(f"Pin: {pin} Input: {GPIO.input(pin)}")
                 print(f"Is Speech Open: {self.IsSpeechOpen}")
                 self.toggle_Speech_Input(self)
+                if(self.IsSpeechOpen):
+                    self.speak(self, "Spracherkennung wurde aktiviert.")
+                else:
+                    self.speak(self, "Spracherkennung wurde ausgeschalten.")
                 print(f"Is Speech Open: {self.IsSpeechOpen}")
                 time.sleep(5)
             time.sleep(0.5)
